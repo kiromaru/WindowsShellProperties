@@ -1,18 +1,12 @@
 ﻿using Microsoft.WindowsAPICodePack.Shell;
 using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PropMan
 {
     static class PropertyManager
     {
-        public const int AppUserModel_StartPinOption_NoPinOnInstall = 1;
-        public const int AppUserModel_StartPinOption_UserPinned = 2;
-
         public static void EnumProperties(string fileName)
         {
             ShellPropertyCollection properties = new ShellPropertyCollection(fileName);
