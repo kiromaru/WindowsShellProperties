@@ -21,10 +21,17 @@ namespace PropMan
             Console.WriteLine("Command: enum | set | get");
         }
 
-        static bool IsNumeric(string str)
+        private static bool IsNumeric(string str)
         {
             return str.All(c => Char.IsDigit(c));
         }
+
+        private static bool IsDate(string propertyValue)
+        {
+            DateTime result;
+            return DateTime.TryParse(propertyValue, out result);
+        }
+
 
         static void Main(string[] args)
         {
@@ -103,6 +110,10 @@ namespace PropMan
                             if (IsNumeric(propertyValue))
                             {
                                 value = int.Parse(propertyValue);
+                            }
+                            if (IsDate(propertyValue))
+                            {
+                                value = DateTime.Parse(propertyValue);
                             }
                             else
                             {
