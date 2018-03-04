@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace PropMan
 {
@@ -8,30 +9,53 @@ namespace PropMan
     {
         private enum Operation
         {
+            Invalid,
             Get,
             Set,
             Enum
         }
 
+        private static class Commands
+        {
+            public static readonly string Get = "get";
+            public static readonly string Set = "set";
+            public static readonly string Enum = "enum";
+        }
+
         static void ShowUsage()
         {
+            Assembly exeAssembly = Assembly.GetEntryAssembly();
+            string exeName = Path.GetFileName(exeAssembly.Location);
+
             Console.WriteLine("Usage:");
-            Console.WriteLine("Properties.exe command file [property name] [property value]");
+            Console.WriteLine($"{exeName} command file [property name] [property value]");
             Console.WriteLine();
             Console.WriteLine("Command: enum | set | get");
         }
 
-        private static bool IsNumeric(string str)
-        {
-            return str.All(c => Char.IsDigit(c));
-        }
+        private static bool IsNumeric(string str) => str.All(c => Char.IsDigit(c));
 
-        private static bool IsDate(string propertyValue)
-        {
-            DateTime result;
-            return DateTime.TryParse(propertyValue, out result);
-        }
+        private static bool IsDate(string propertyValue) => DateTime.TryParse(propertyValue, out DateTime result);
 
+        static Operation DetermineOperation(string command)
+        {
+            Operation operation = Operation.Invalid;
+
+            if (Commands.Get.Equals(command, StringComparison.OrdinalIgnoreCase))
+            {
+                operation = Operation.Get;
+            }
+            else if (Commands.Set.Equals(command, StringComparison.OrdinalIgnoreCase))
+            {
+                operation = Operation.Set;
+            }
+            else if (Commands.Enum.Equals(command, StringComparison.OrdinalIgnoreCase))
+            {
+                operation = Operation.Enum;
+            }
+
+            return operation;
+        }
 
         static void Main(string[] args)
         {
@@ -47,23 +71,13 @@ namespace PropMan
             string propertyValue = null;
 
             // Determine the operation requested.
-            if (args[0].Equals("get", StringComparison.OrdinalIgnoreCase))
-            {
-                operation = Operation.Get;
-            }
-            else if (args[0].Equals("set", StringComparison.OrdinalIgnoreCase))
-            {
-                operation = Operation.Set;
-            }
-            else if (args[0].Equals("enum", StringComparison.OrdinalIgnoreCase))
-            {
-                operation = Operation.Enum;
-            }
-            else
+            operation = DetermineOperation(args[0]);
+            if (operation == Operation.Invalid)
             {
                 ShowUsage();
                 return;
             }
+
 
             if (args.Length >= 3)
             {
@@ -95,6 +109,7 @@ namespace PropMan
                 Console.WriteLine("File '{0}' does not exist.", fileName);
                 return;
             }
+            fileName = Path.GetFullPath(fileName);
 
             try
             {
